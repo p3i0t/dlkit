@@ -5,94 +5,34 @@ import os
 from pathlib import Path
 from collections import defaultdict
 from copy import deepcopy
-from typing import Dict, Tuple, Literal
+from typing import Dict, Tuple
 
 import numpy as np
 import polars as pl
 import torch
 from loguru import logger
-from pydantic import BaseModel, Field
+from pydantic import Field
 
 from dlkit.models import get_model
 from dlkit.preprocessing import DataFrameNormalizer
 from dlkit.exceptions import ModelDirectoryEmptyError
 
-from dlkit.utils import (
-    CHECHPOINT_META,
-    get_time_slots,
-)
+from dlkit.utils import CHECHPOINT_META
+from dlkit.train import DatasetMetaArgs
 
 logger = logger.bind(where="inference")
 
 __all__ = ["InferenceArguments", "InferencePipeline"]
 
 
-class InferenceArguments(BaseModel):
+class InferenceArguments(DatasetMetaArgs):
     prod: str = Field(..., description="product (or experiment) name")
     save_dir: Path = Field(...)
     dataset_dir: Path = Field(...)
     universe: str = Field(...)
-    x_columns: list[str] = Field(...)
-    x_begin: str = Field(...)
-    x_end: str = Field(...)
-    freq_in_min: Literal[1, 10] = Field(
-        10, description="frequency of input in minutes."
-    )
-    y_columns: list[str] = Field(...)
-    y_slots: str | list[str] = Field(..., description="output slots.")
     model: str = Field(..., description="model name")
     n_latest: int = Field(3, description="number of latest models to ensemble")
     device: str = Field("cuda", description="Device to run on.")
-
-    @property
-    def x_slots(self) -> list[str]:
-        return get_time_slots(
-            start=self.x_begin, end=self.x_end, freq_in_min=self.freq_in_min
-        )
-
-    @property
-    def d_in(self) -> int:
-        return len(self.x_columns)
-
-    @property
-    def d_out(self) -> int:
-        return len(self.y_columns)
-
-    @property
-    def output_indices(self) -> list[int]:
-        import bisect
-
-        if isinstance(self.y_slots, str):
-            y_slots = [self.y_slots]
-        elif isinstance(self.y_slots, list):
-            y_slots = self.y_slots
-        else:
-            raise ValueError(f"y_slots {self.y_slots} is not a valid type.")
-        o = [bisect.bisect(self.x_slots, _y) - 1 for _y in y_slots]
-        assert all(e >= 0 for e in o)
-        return o
-
-    @property
-    def x_shape(self) -> Tuple[int, ...]:
-        return len(self.x_slots), len(self.x_columns)
-
-    @property
-    def x_features(self) -> list[str]:
-        return [
-            f"{_f}_{_s}" for _s, _f in itertools.product(self.x_slots, self.x_columns)
-        ]
-
-    # @model_validator(mode="after")
-    # def generate_x_slots(self):
-    #     self.x_slots = get_time_slots(start=self.x_begin, end=self.x_end, freq_in_min=self.freq_in_min)
-    #     return self
-
-    # @model_validator(mode="after")
-    # def check_d_in(self):
-    #     assert self.d_in == len(
-    #         self.x_columns
-    #     ), f"d_in {self.d_in} != len(x_columns) {len(self.x_columns)}"
-    #     return self
 
 
 class InferencePipeline:
@@ -101,8 +41,6 @@ class InferencePipeline:
     def __init__(self, args: InferenceArguments):
         self.args = args
         import os
-
-        print(os.getcwd())
         model_dir = f"{args.save_dir}/{args.prod}"
         self.models_available = sorted(os.listdir(model_dir))
         if len(self.models_available) == 0:
@@ -195,12 +133,12 @@ class InferencePipeline:
                 _df = df_cs
             # _df = _normalizer.transform(deepcopy(df_cs))  # this is model specific
             x = (
-                _df.select(self.args.x_features)
+                _df.select(self.args.x_slot_columns)
                 .to_numpy(order="c")
                 .reshape(-1, *self.args.x_shape)
             )
             x = torch.Tensor(x).to(self.args.device)
-            pred = _model(x)[:, -1, :]
+            pred = _model(x)[:, self.args.output_indices, :]
             pred = pred.detach().cpu().numpy()
             pred_list.append(pred)
 
@@ -212,7 +150,8 @@ class InferencePipeline:
         res_dict = {}
         for n in n_latest:
             pred = np.stack(pred_list[-n:]).mean(axis=0)
-            df = df_index.hstack(pl.from_numpy(pred, schema=self.args.y_columns))
+            pred_flatten = pred.reshape((pred.shape[0], -1))
+            df = df_index.hstack(pl.from_numpy(pred_flatten, schema=self.args.y_slot_columns))
             res_dict[n] = df
 
         return res_dict

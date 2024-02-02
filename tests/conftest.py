@@ -43,7 +43,7 @@ def generate_trainarguments() -> TrainArguments:
         x_end="1030",
         freq_in_min=10,
         y_columns=y_columns,
-        y_slots="1030",
+        y_slots=['1020', "1030"],
         train_date_range=("2018-01-01", "2022-06-11"),
         eval_date_range=("2022-06-12", "2022-07-11"),
         test_date_range=("2022-07-12", "2022-08-12"),
@@ -105,8 +105,9 @@ def generate_stock_dataset(generate_trainarguments):
     d = np.array(d)
     s = np.array(s)
     x_seq = len(args.x_slots)
+    y_seq = len(args.y_slots)
     x = np.random.randn(len(train_dates) * len(symbols), x_seq, len(args.x_columns))
-    y = np.random.randn(len(train_dates) * len(symbols), 1, len(args.y_columns))
+    y = np.random.randn(len(train_dates) * len(symbols), y_seq, len(args.y_columns))
     train_set = StockDataset(
         date=d,
         symbol=s,
@@ -119,8 +120,9 @@ def generate_stock_dataset(generate_trainarguments):
     d = np.array(d)
     s = np.array(s)
     x_seq = len(args.x_slots)
+    y_seq = len(args.y_slots)
     x = np.random.randn(len(eval_dates) * len(symbols), x_seq, len(args.x_columns))
-    y = np.random.randn(len(eval_dates) * len(symbols), 1, len(args.y_columns))
+    y = np.random.randn(len(eval_dates) * len(symbols), y_seq, len(args.y_columns))
     eval_set = StockDataset(
         date=d,
         symbol=s,
@@ -133,8 +135,9 @@ def generate_stock_dataset(generate_trainarguments):
     d = np.array(d)
     s = np.array(s)
     x_seq = len(args.x_slots)
+    y_seq = len(args.y_slots)
     x = np.random.randn(len(test_dates) * len(symbols), x_seq, len(args.x_columns))
-    y = np.random.randn(len(test_dates) * len(symbols), 1, len(args.y_columns))
+    y = np.random.randn(len(test_dates) * len(symbols), y_seq, len(args.y_columns))
     test_set = StockDataset(
         date=d,
         symbol=s,

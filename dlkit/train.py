@@ -14,7 +14,6 @@ from pydantic import (
     Field,
     PositiveFloat,
     PositiveInt,
-    model_validator,
     field_validator,
 )
 from torch.optim import AdamW
@@ -36,22 +35,75 @@ from dlkit.checks import check_epochs, check_milestone, check_normalizer
 logger = logger.bind(where="trainer")
 
 
-__all__ = ["TrainArguments", "StockTrainer"]
+__all__ = ["DatasetMetaArgs", "TrainArguments", "StockTrainer"]
 
 
-class TrainArguments(BaseModel):
+class DatasetMetaArgs(BaseModel):
+    x_columns: list[str] = Field(..., description="input columns.")
+    x_begin: str = Field(..., description="start time slot.")
+    x_end: str = Field(..., description="end time slot.")
+    freq_in_min: Literal[1, 10] = Field(
+        10, description="frequency of input in minutes."
+    )
+    y_columns: list[str] = Field(..., description="output columns.")
+    y_slots: str | list[str] = Field(..., description="output slots.")
+    
+    @property
+    def x_slots(self) -> list[str]:
+        return get_time_slots(
+            start=self.x_begin, end=self.x_end, freq_in_min=self.freq_in_min
+        )
+
+    @property
+    def d_in(self) -> int:
+        return len(self.x_columns)
+
+    @property
+    def d_out(self) -> int:
+        return len(self.y_columns)
+
+    @property
+    def output_indices(self) -> list[int]:
+        import bisect
+
+        if isinstance(self.y_slots, str):
+            y_slots = [self.y_slots]
+        elif isinstance(self.y_slots, list):
+            y_slots = self.y_slots
+        else:
+            raise ValueError(f"y_slots {self.y_slots} is not a valid type.")
+        o = [bisect.bisect(self.x_slots, _y) - 1 for _y in y_slots]
+        assert all(e >= 0 for e in o)
+        return o
+
+    @property
+    def x_shape(self) -> Tuple[int, ...]:
+        return len(self.x_slots), len(self.x_columns)
+
+    @property
+    def x_slot_columns(self) -> list[str]:
+        return [
+            f"{_f}_{_s}" for _s, _f in itertools.product(self.x_slots, self.x_columns)
+        ]
+
+    @property
+    def y_shape(self) -> Tuple[int, ...]:
+        return len(self.y_slots), len(self.y_columns)
+    
+    @property
+    def y_slot_columns(self) -> list[str]:
+        return [
+            f"{_f}_{_s}" for _s, _f in itertools.product(self.y_slots, self.y_columns)
+        ]
+    
+
+class TrainArguments(DatasetMetaArgs):
     """The class including all the arguments related to training.
 
     Args:
         prod (str): product (or experiment) name
         dataset_dir (Path): dataset directory
         universe (str): universe to train.
-        x_columns (list[str]): input columns.
-        x_begin (str): start time slot.
-        x_end (str): end time slot.
-        freq_in_min (Literal[1, 10]): frequency of input in minutes.
-        y_columns (list[str]): output columns.
-        y_slots (str | list[str]): output slots.
         milestone (Annotated[str, AfterValidator(check_date)]): milestone date of the model
         train_date_range (Tuple[str, str]): training date range.
         eval_date_range (Optional[Tuple[str, str]]): evaluation date range.
@@ -79,18 +131,9 @@ class TrainArguments(BaseModel):
         milestone_dir (Path): directory of this milestone for checkpoint and logs.
         output_indices (list[int]): output indices.
     """
-
     prod: str = Field(..., description="product (or experiment) name.")
     dataset_dir: Path = Field(..., description="dataset directory")
     universe: str = Field(..., description="universe to train.")
-    x_columns: list[str] = Field(..., description="input columns.")
-    x_begin: str = Field(..., description="start time slot.")
-    x_end: str = Field(..., description="end time slot.")
-    freq_in_min: Literal[1, 10] = Field(
-        10, description="frequency of input in minutes."
-    )
-    y_columns: list[str] = Field(..., description="output columns.")
-    y_slots: str | list[str] = Field(..., description="output slots.")
     milestone: Annotated[str, AfterValidator(check_milestone)] = Field(
         "2020-01-01", description="milestone date of the model"
     )
@@ -139,52 +182,7 @@ class TrainArguments(BaseModel):
     def validate_dataset_dir(cls, v: Path):
         assert v.exists(), f"{v} does not exist."
         return v
-
-    @property
-    def x_slots(self) -> list[str]:
-        return get_time_slots(
-            start=self.x_begin, end=self.x_end, freq_in_min=self.freq_in_min
-        )
-
-    @property
-    def d_in(self) -> int:
-        return len(self.x_columns)
-
-    @property
-    def d_out(self) -> int:
-        return len(self.y_columns)
-
-    @property
-    def output_indices(self) -> list[int]:
-        import bisect
-
-        if isinstance(self.y_slots, str):
-            y_slots = [self.y_slots]
-        elif isinstance(self.y_slots, list):
-            y_slots = self.y_slots
-        else:
-            raise ValueError(f"y_slots {self.y_slots} is not a valid type.")
-        o = [bisect.bisect(self.x_slots, _y) - 1 for _y in y_slots]
-        assert all(e >= 0 for e in o)
-        return o
-
-    @model_validator(mode="after")
-    def check_d_in(self):
-        assert self.d_in == len(
-            self.x_columns
-        ), f"d_in {self.d_in} != len(x_columns) {len(self.x_columns)}"
-        return self
-
-    @property
-    def x_shape(self) -> Tuple[int, ...]:
-        return len(self.x_slots), len(self.x_columns)
-
-    @property
-    def x_features(self) -> list[str]:
-        return [
-            f"{_f}_{_s}" for _s, _f in itertools.product(self.x_slots, self.x_columns)
-        ]
-
+        
     @property
     def milestone_dir(self) -> Path:
         """directory of this milestone for checkpoint and logs"""
@@ -286,7 +284,7 @@ class StockTrainer:
         loader = self.get_train_dataloader()
         for batch_idx, batch in enumerate(loader):
             batch = self._process_batch(batch)
-            pred: torch.Tensor = self.model(batch.x)[:, -1, :]
+            pred: torch.Tensor = self.model(batch.x)[:, self.args.output_indices, :]
             loss = (pred - batch.y).pow(2).mean()
             loss_list.append(loss.detach().cpu().item())
 
@@ -306,11 +304,11 @@ class StockTrainer:
         with torch.no_grad():
             for batch_idx, batch in enumerate(dataloader):
                 batch = self._process_batch(batch)
-                pred: torch.Tensor = self.model(batch.x)[:, -1, :]
+                pred: torch.Tensor = self.model(batch.x)[:, self.args.output_indices, :]
                 loss = (pred - batch.y).pow(2).mean()
                 res_dict["loss"].append(loss.detach().cpu().item())
 
-                if not prediction_loss_only:
+                if not prediction_loss_only: # todo: modify when y is not single slot
                     res_dict["date"].append(batch.date)
                     res_dict["symbol"].append(batch.symbol)
                     pred_cols = [f"pred_{c}" for c in batch.y_columns]
@@ -347,7 +345,7 @@ class StockTrainer:
             else:
                 ic_dict = {}
 
-            return ic_dict | output
+            return output | ic_dict
 
     def _process_batch(self, batch: StockBatch) -> StockBatch:
         """
@@ -376,7 +374,7 @@ class StockTrainer:
 
         for epoch in range(int(self.args.epochs)):
             train_loss = self.train_epoch()
-            eval_dict = self.eval_epoch(self.get_eval_dataloader())
+            eval_dict = self.eval_epoch(self.get_eval_dataloader(), prediction_loss_only=True)
             logger.info(f"======> Epoch {epoch:02d}")
             logger.info(f"train_loss: {train_loss:.4f}")
             logger.info("Evaluation:")

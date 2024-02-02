@@ -10,13 +10,14 @@ or set venv_backend to "none", both are equivalent.
 import nox
 
 
-# @nox.session(
-#     python=[
-#         "3.10",
-#         "3.11",
-#     ],
-#     venv_backend="conda",
-# )
+@nox.session(
+    python=[
+        "3.10",
+        "3.11",
+    ],
+    venv_backend="conda",
+)
+# @nox.session()
 def lint_and_format(session):
     """lint with ruff, configurations are in pyproject.toml."""
     session.install("ruff")
@@ -24,13 +25,14 @@ def lint_and_format(session):
     session.run("ruff", "format", "dlkit", "tests", "noxfile.py")
 
 
-# @nox.session(
-#     python=[
-#         "3.10",
-#         "3.11",
-#     ],
-#     venv_backend="conda",
-# )
+@nox.session(
+    python=[
+        "3.10",
+        "3.11",
+    ],
+    venv_backend="conda",
+)
+# @nox.session()
 def test(session):
     """Unit test with pytest."""
     session.run("poetry", "install", external=True)
