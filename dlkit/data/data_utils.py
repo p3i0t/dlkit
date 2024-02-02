@@ -1,11 +1,13 @@
 """This module contains the data utilities for the pit package.
 """
+from dataclasses import dataclass
 from typing import Literal, NamedTuple, Sequence, TypeAlias, Union
 
 import numpy as np
 import numpy.typing as npt
 import torch
-from pydantic import BaseModel, Field, PlainValidator
+
+# from pydantic import BaseModel, Field, PlainValidator
 from typing_extensions import Annotated
 
 ArrayType: TypeAlias = Union[npt.NDArray[np.float32], torch.FloatTensor]
@@ -66,22 +68,13 @@ def check_2d_or_3d_float32_tensor(v: torch.Tensor) -> torch.Tensor:
     return v
 
 
-class StockDataset(BaseModel):
-    date: Annotated[np.ndarray, PlainValidator(check_1d_np_array)] = Field(
-        ..., description="date of the samples"
-    )
-    symbol: Annotated[np.ndarray, PlainValidator(check_1d_np_array)] = Field(
-        ..., description="symbol of the samples"
-    )
-    x: Annotated[
-        np.ndarray,
-        PlainValidator(check_3d_np_array),
-    ] = Field(..., description="features of the samples, 3D array")
-    y: Annotated[
-        np.ndarray,
-        PlainValidator(check_3d_np_array),
-    ] = Field(..., description="labels of the samples, 3D array")
-    y_columns: Sequence[str] = Field(..., description="column names of y")
+@dataclass
+class StockDataset:
+    date: np.ndarray
+    symbol: np.ndarray
+    x: np.ndarray
+    y: np.ndarray
+    y_columns: Sequence[str]
 
     @property
     def x_shape(self):
@@ -95,34 +88,42 @@ class StockDataset(BaseModel):
         return len(self.date)
 
 
-class StockBatch(BaseModel):
-    """Class for a typical stock batch, including date, symbol, x, y, y_columns etc.
+# class StockDataset(BaseModel):
+#     date: Annotated[np.ndarray, PlainValidator(check_1d_np_array)] = Field(
+#         ..., description="date of the samples"
+#     )
+#     symbol: Annotated[np.ndarray, PlainValidator(check_1d_np_array)] = Field(
+#         ..., description="symbol of the samples"
+#     )
+#     x: Annotated[
+#         np.ndarray,
+#         PlainValidator(check_3d_np_array),
+#     ] = Field(..., description="features of the samples, 3D array")
+#     y: Annotated[
+#         np.ndarray,
+#         PlainValidator(check_3d_np_array),
+#     ] = Field(..., description="labels of the samples, 3D array")
+#     y_columns: Sequence[str] = Field(..., description="column names of y")
 
-    Args:
-        BaseModel (_type_): _description_
+#     @property
+#     def x_shape(self):
+#         return self.x.shape[1:]
 
-    Raises:
-        AttributeError: _description_
+#     @property
+#     def y_shape(self):
+#         return self.y.shape[1:]
 
-    Returns:
-        _type_: _description_
-    """
+#     def __len__(self):
+#         return len(self.date)
 
-    date: Annotated[np.ndarray, PlainValidator(check_1d_np_array)] = Field(
-        ..., description="date of the samples"
-    )
-    symbol: Annotated[np.ndarray, PlainValidator(check_1d_np_array)] = Field(
-        ..., description="symbol of the samples"
-    )
-    x: Annotated[
-        torch.Tensor,
-        PlainValidator(check_2d_or_3d_float32_tensor),
-    ] = Field(..., description="features of the samples, 2D or 3D array")
-    y: Annotated[
-        torch.Tensor,
-        PlainValidator(check_2d_or_3d_float32_tensor),
-    ] = Field(None, description="labels of the samples, 2D or 3D array")
-    y_columns: Sequence[str] = Field(..., description="column names of y")
+
+@dataclass
+class StockBatch:
+    date: np.ndarray
+    symbol: np.ndarray
+    x: torch.Tensor
+    y: torch.Tensor
+    y_columns: Sequence[str]
 
     @property
     def x_shape(self):
@@ -130,13 +131,54 @@ class StockBatch(BaseModel):
 
     @property
     def y_shape(self):
-        if hasattr(self, "y"):
-            return self.y.shape[1:]
-        else:
-            raise AttributeError("StockBatch has no attribute 'y'.")
+        return self.y.shape[1:]
 
     def __len__(self):
         return len(self.date)
+
+
+# class StockBatch(BaseModel):
+#     """Class for a typical stock batch, including date, symbol, x, y, y_columns etc.
+
+#     Args:
+#         BaseModel (_type_): _description_
+
+#     Raises:
+#         AttributeError: _description_
+
+#     Returns:
+#         _type_: _description_
+#     """
+
+#     date: Annotated[np.ndarray, PlainValidator(check_1d_np_array)] = Field(
+#         ..., description="date of the samples"
+#     )
+#     symbol: Annotated[np.ndarray, PlainValidator(check_1d_np_array)] = Field(
+#         ..., description="symbol of the samples"
+#     )
+#     x: Annotated[
+#         torch.Tensor,
+#         PlainValidator(check_2d_or_3d_float32_tensor),
+#     ] = Field(..., description="features of the samples, 2D or 3D array")
+#     y: Annotated[
+#         torch.Tensor,
+#         PlainValidator(check_2d_or_3d_float32_tensor),
+#     ] = Field(None, description="labels of the samples, 2D or 3D array")
+#     y_columns: Sequence[str] = Field(..., description="column names of y")
+
+#     @property
+#     def x_shape(self):
+#         return self.x.shape[1:]
+
+#     @property
+#     def y_shape(self):
+#         if hasattr(self, "y"):
+#             return self.y.shape[1:]
+#         else:
+#             raise AttributeError("StockBatch has no attribute 'y'.")
+
+#     def __len__(self):
+#         return len(self.date)
 
 
 StockCrossSectionalBatch: TypeAlias = StockBatch

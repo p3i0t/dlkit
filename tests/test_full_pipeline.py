@@ -43,9 +43,9 @@ def run_infer(setup):  # noqa: F811
 
     df_test = pl.DataFrame({"date": infer_set.date, "symbol": infer_set.symbol})
     # print(f"{infer_set.x.shape=}")
-    n_features = len(train_args.x_flatten_columns)
+    n_features = len(train_args.x_slot_columns)
     df_x = pl.DataFrame(
-        np.reshape(infer_set.x, (-1, n_features)), schema=train_args.x_flatten_columns
+        np.reshape(infer_set.x, (-1, n_features)), schema=train_args.x_slot_columns
     )
     # print(f"{df_x.shape=}")
     df_test = df_test.hstack(df_x)

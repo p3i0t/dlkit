@@ -10,7 +10,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "dlkit"
-version = "0.1.6"
+version = "0.6.6"
 description = "Simple Deep Learning Toolkit for Stock Prediction"
 authors = ["p3i0t <wangxin_0716@me.com>"]
 readme = "README.md"
