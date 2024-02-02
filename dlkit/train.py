@@ -88,12 +88,24 @@ class DatasetMetaArgs(BaseModel):
 
     @property
     def y_shape(self) -> Tuple[int, ...]:
-        return len(self.y_slots), len(self.y_columns)
+        if isinstance(self.y_slots, str):
+            y_slots = [self.y_slots]
+        elif isinstance(self.y_slots, list):
+            y_slots = self.y_slots
+        else:
+            raise ValueError(f"y_slots {self.y_slots} is not a valid type.")
+        return len(y_slots), len(self.y_columns)
     
     @property
     def y_slot_columns(self) -> list[str]:
+        if isinstance(self.y_slots, str):
+            y_slots = [self.y_slots]
+        elif isinstance(self.y_slots, list):
+            y_slots = self.y_slots
+        else:
+            raise ValueError(f"y_slots {self.y_slots} is not a valid type.")
         return [
-            f"{_f}_{_s}" for _s, _f in itertools.product(self.y_slots, self.y_columns)
+            f"{_f}_{_s}" for _s, _f in itertools.product(y_slots, self.y_columns)
         ]
     
 
