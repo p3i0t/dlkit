@@ -204,13 +204,13 @@ class NumpyStockDataLoader:
         shuffle: bool = False,
         batch_size: int = 256,
         drop_last: bool = False,
-        device: torch.device | str = torch.device("cuda"),
+        # device: torch.device | str = torch.device("cuda"),
     ):
         self.shuffle = shuffle
         self.dataset = dataset
         self.batch_size = batch_size
         self.drop_last = drop_last
-        self.device = device
+        # self.device = device
         self.indices = np.arange(len(self.dataset))
         n_batches, remainder = divmod(len(self.dataset), batch_size)
         self.n_batches = n_batches + (1 if remainder > 0 and drop_last is False else 0)
@@ -237,12 +237,12 @@ class NumpyStockDataLoader:
             x=torch.tensor(
                 self.dataset.x[self.indices[start:end].tolist()],
                 dtype=torch.float32,
-                device=self.device
+                # device=self.device
             ),
             y=torch.tensor(
                 self.dataset.y[self.indices[start:end].tolist()],
                 dtype=torch.float32,
-                device=self.device
+                # device=self.device
             ),
             y_columns=self.dataset.y_columns,
         )
