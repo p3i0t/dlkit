@@ -225,6 +225,7 @@ class NumpyStockDataLoader:
         return self
 
     def __next__(self) -> StockBatch:
+        print("iter - ", self.iter, self.n_batches)
         if self.iter >= self.n_batches:
             raise StopIteration
         start = self.iter * self.batch_size
@@ -234,6 +235,7 @@ class NumpyStockDataLoader:
             else len(self.dataset)
         )
         self.iter += 1
+        print(type(self.indices))
         _i = self.indices[start:end]
         _date = self.dataset.date[_i]
         _symbol = self.dataset.symbol[_i]
