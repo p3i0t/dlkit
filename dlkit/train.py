@@ -269,7 +269,7 @@ class StockTrainer:
             shuffle=False,
             batch_size=self.args.eval_batch_size,
             drop_last=self.args.dataloader_drop_last,
-            device=self.args.device,
+            # device=self.args.device,
         )
 
     def get_train_dataloader(self) -> Iterable[StockBatch]:
@@ -287,7 +287,7 @@ class StockTrainer:
             shuffle=True,
             batch_size=self.args.train_batch_size,
             drop_last=self.args.dataloader_drop_last,
-            device=self.args.device,
+            # device=self.args.device,
         )
 
     def train_epoch(self):
