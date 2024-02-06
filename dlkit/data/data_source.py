@@ -17,9 +17,7 @@ class ParquetStockSource:
         *args: P.args,
         **kwargs: P.kwargs,
     ) -> None:
-        with pl.StringCache():
-            self.df_lazy = pl.scan_parquet(data_path).pipe(function, *args, **kwargs)
+        self.df_lazy = pl.scan_parquet(data_path).pipe(function, *args, **kwargs)
 
     def __call__(self) -> pl.DataFrame:
-        with pl.StringCache():
-            return self.df_lazy.collect()
+        return self.df_lazy.collect()

@@ -135,6 +135,9 @@ class StockBatch:
 
     def __len__(self):
         return len(self.date)
+    
+    def __repr__(self) -> str:
+        return f"StockBatch(date={self.date.shape, type(self.date)}, symbol={self.symbol.shape, type(self.symbol)}, x={self.x.shape, type(self.x)}, y={self.y.shape, type(self.y)}, y_columns={self.y_columns})"
 
 
 # class StockBatch(BaseModel):
