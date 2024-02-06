@@ -121,8 +121,8 @@ class StockDataset:
 class StockBatch:
     date: np.ndarray
     symbol: np.ndarray
-    x: torch.Tensor
-    y: torch.Tensor
+    x: np.ndarray
+    y: np.ndarray
     y_columns: Sequence[str]
 
     @property
@@ -234,16 +234,18 @@ class NumpyStockDataLoader:
         batch = StockBatch(
             date=self.dataset.date[self.indices[start:end]],
             symbol=self.dataset.symbol[self.indices[start:end]],
-            x=torch.tensor(
-                self.dataset.x[self.indices[start:end].tolist()],
-                dtype=torch.float32,
-                # device=self.device
-            ),
-            y=torch.tensor(
-                self.dataset.y[self.indices[start:end].tolist()],
-                dtype=torch.float32,
-                # device=self.device
-            ),
+            x=self.dataset.x[self.indices[start:end].tolist()],
+            y=self.dataset.y[self.indices[start:end].tolist()],
+            # x=torch.tensor(
+            #     self.dataset.x[self.indices[start:end].tolist()],
+            #     dtype=torch.float32,
+            #     # device=self.device
+            # ),
+            # y=torch.tensor(
+            #     self.dataset.y[self.indices[start:end].tolist()],
+            #     dtype=torch.float32,
+            #     # device=self.device
+            # ),
             y_columns=self.dataset.y_columns,
         )
         return batch
