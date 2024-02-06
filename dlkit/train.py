@@ -282,6 +282,7 @@ class StockTrainer:
         if self.train_dataset is None:
             raise ValueError("Trainer: training requires an eval dataset.")
 
+        print("before NumpyStockDataLoader")
         return NumpyStockDataLoader(
             dataset=self.train_dataset,
             shuffle=True,
@@ -294,6 +295,7 @@ class StockTrainer:
         self.model.train()
         loss_list = []
         loader = self.get_train_dataloader()
+        print("loader prepared.")
         for batch_idx, batch in enumerate(loader):
             print(f"batch_idx: {batch_idx}")
             print(batch)
@@ -389,6 +391,7 @@ class StockTrainer:
         best_state = None
 
         for epoch in range(int(self.args.epochs)):
+            print(f"epoch: {epoch}")
             train_loss = self.train_epoch()
             eval_dict = self.eval_epoch(self.get_eval_dataloader(), prediction_loss_only=True)
             logger.info(f"======> Epoch {epoch:02d}")
