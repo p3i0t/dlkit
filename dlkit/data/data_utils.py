@@ -121,8 +121,8 @@ class StockDataset:
 class StockBatch:
     date: np.ndarray
     symbol: np.ndarray
-    x: np.ndarray
-    y: np.ndarray
+    x: np.ndarray | torch.Tensor
+    y: np.ndarray | torch.Tensor
     y_columns: Sequence[str]
 
     @property
