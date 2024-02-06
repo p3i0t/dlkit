@@ -234,11 +234,15 @@ class NumpyStockDataLoader:
         batch = StockBatch(
             date=self.dataset.date[self.indices[start:end]],
             symbol=self.dataset.symbol[self.indices[start:end]],
-            x=torch.FloatTensor(
-                self.dataset.x[self.indices[start:end].tolist()], device=self.device
+            x=torch.tensor(
+                self.dataset.x[self.indices[start:end].tolist()],
+                dtype=torch.float32,
+                device=self.device
             ),
-            y=torch.FloatTensor(
-                self.dataset.y[self.indices[start:end].tolist()], device=self.device
+            y=torch.tensor(
+                self.dataset.y[self.indices[start:end].tolist()],
+                dtype=torch.float32,
+                device=self.device
             ),
             y_columns=self.dataset.y_columns,
         )
