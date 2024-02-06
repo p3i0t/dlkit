@@ -295,9 +295,9 @@ class StockTrainer:
         loss_list = []
         loader = self.get_train_dataloader()
         for batch_idx, batch in enumerate(loader):
-            batch = self._process_batch(batch)
-            pred: torch.Tensor = self.model(batch.x)[:, self.args.output_indices, :]
-            loss = (pred - batch.y).pow(2).mean()
+            x, y = self._process_xy(batch.x, batch.y)
+            pred: torch.Tensor = self.model(x)[:, self.args.output_indices, :]
+            loss = (pred - y).pow(2).mean()
             loss_list.append(loss.detach().cpu().item())
 
             self.optimizer.zero_grad()
@@ -315,9 +315,9 @@ class StockTrainer:
         res_dict = defaultdict(list)
         with torch.no_grad():
             for batch_idx, batch in enumerate(dataloader):
-                batch = self._process_batch(batch)
-                pred: torch.Tensor = self.model(batch.x)[:, self.args.output_indices, :]
-                loss = (pred - batch.y).pow(2).mean()
+                x, y = self._process_xy(batch.x, batch.y)
+                pred: torch.Tensor = self.model(x)[:, self.args.output_indices, :]
+                loss = (pred - y).pow(2).mean()
                 res_dict["loss"].append(loss.detach().cpu().item())
 
                 if not prediction_loss_only: # todo: modify when y is not single slot
@@ -330,7 +330,7 @@ class StockTrainer:
                     )
                     res_dict["pred"].append(df_pred)
                     df_y = pl.DataFrame(
-                        batch.y.detach().cpu().flatten(start_dim=1).numpy(),
+                        y.detach().cpu().flatten(start_dim=1).numpy(),
                         schema=batch.y_columns,
                     )
                     res_dict["y"].append(df_y)
@@ -359,7 +359,7 @@ class StockTrainer:
 
             return output | ic_dict
 
-    def _process_batch(self, batch: StockBatch) -> StockBatch:
+    def _process_xy(self, x, y=None):
         """
         Process the batch, i.e. move the batch to the device and convert the batch to tensor.
         Args:
@@ -368,12 +368,14 @@ class StockTrainer:
         Returns:
                 StockBatch: The processed batch.
         """
-        batch.x = torch.Tensor(batch.x).to(self.args.device, non_blocking=True)
-        batch.x = torch.nan_to_num(batch.x, nan=0.0)
-        if batch.y is not None:
-            batch.y = torch.Tensor(batch.y).to(self.args.device, non_blocking=True)
-            batch.y = torch.nan_to_num(batch.y, nan=0.0)
-        return batch
+        x = torch.Tensor(x).to(self.args.device, non_blocking=True)
+        x = torch.nan_to_num(x, nan=0.0)
+        if y is not None:
+            y = torch.Tensor(y).to(self.args.device, non_blocking=True)
+            y = torch.nan_to_num(y, nan=0.0)
+            return x, y
+        else:
+            return x
 
     def train(self):
         args = self.args
