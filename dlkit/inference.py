@@ -74,9 +74,10 @@ class InferencePipeline:
         # dict of [(date,), df_cs], key is always tuple for newer versions of polars
 
         dict_list = []
-        for date in sorted(df_dict.keys()):
-            df_cs = df_dict[date]
-            df_pred = self._forward_cross_sectional_batch(date, df_cs)
+        for tuple_key in sorted(df_dict.keys()):
+            df_cs = df_dict[tuple_key]
+            (_date, ) = tuple_key
+            df_pred = self._forward_cross_sectional_batch(_date, df_cs)
             dict_list.append(df_pred)
 
         merged_dict = defaultdict(list)
