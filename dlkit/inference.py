@@ -70,7 +70,8 @@ class InferencePipeline:
     def __call__(
         self, df: pl.DataFrame
     ) -> Dict[int, pl.DataFrame] | pl.DataFrame | None:
-        df_dict = df.partition_by("date", as_dict=True)  # dict of [date, df_cs]
+        df_dict = df.partition_by(["date"], as_dict=True)  
+        # dict of [(date,), df_cs], key is always tuple for newer versions of polars
 
         dict_list = []
         for date in sorted(df_dict.keys()):
