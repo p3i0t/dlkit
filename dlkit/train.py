@@ -297,8 +297,6 @@ class StockTrainer:
         loader = self.get_train_dataloader()
         logger.info("loader prepared.")
         for batch_idx, batch in enumerate(loader):
-            print(f"batch_idx: {batch_idx}")
-            print(batch)
             x, y = self._process_xy(batch.x, batch.y)
             pred: torch.Tensor = self.model(x)[:, self.args.output_indices, :]
             loss = (pred - y).pow(2).mean()
