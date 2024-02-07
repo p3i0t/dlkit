@@ -225,7 +225,6 @@ class NumpyStockDataLoader:
         return self
 
     def __next__(self) -> StockBatch:
-        print("iter - ", self.iter, self.n_batches)
         if self.iter >= self.n_batches:
             raise StopIteration
         start = self.iter * self.batch_size
@@ -235,29 +234,17 @@ class NumpyStockDataLoader:
             else len(self.dataset)
         )
         self.iter += 1
-        print(type(self.indices))
+        # all numpy arrays
         _i = self.indices[start:end]
         _date = self.dataset.date[_i]
         _symbol = self.dataset.symbol[_i]
         _x = self.dataset.x[_i]
         _y = self.dataset.y[_i]
-        print(_date.shape, _symbol.shape, _x.shape, _y.shape)
-        print(type(_date), type(_symbol), type(_x), type(_y))
         batch = StockBatch(
             date=_date,
             symbol=_symbol,
             x=_x,
             y=_y,
-            # x=torch.tensor(
-            #     self.dataset.x[self.indices[start:end].tolist()],
-            #     dtype=torch.float32,
-            #     # device=self.device
-            # ),
-            # y=torch.tensor(
-            #     self.dataset.y[self.indices[start:end].tolist()],
-            #     dtype=torch.float32,
-            #     # device=self.device
-            # ),
             y_columns=self.dataset.y_columns,
         )
         return batch
