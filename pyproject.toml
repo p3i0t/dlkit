@@ -18,7 +18,7 @@ readme = "README.md"
 # https://python-poetry.org/docs/managing-dependencies/
 [tool.poetry.dependencies]
 python = "^3.9"
-polars = "^0.20.7"
+polars = "0.20.7"
 numpy = "^1.26.3"
 torch = "2.2.0"
 loguru = "^0.7.2"
