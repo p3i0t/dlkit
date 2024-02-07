@@ -246,7 +246,9 @@ class StockTrainer:
         compute_metrics: Optional[Callable[[EvalPrediction], Dict]] = None,
     ):
         self.args = args
-        self.model = get_model(name=args.model, d_in=args.d_in, d_out=args.d_out)
+        self.model = get_model(
+            name=args.model, d_in=args.d_in, d_out=args.d_out
+            ).to(self.args.device)
         # model.train()
         if self.model is None:
             raise ValueError("Trainer: model cannot be None.")
