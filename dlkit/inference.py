@@ -59,7 +59,7 @@ class InferencePipeline:
         """
         model = get_model(
             name=self.args.model, d_in=self.args.d_in, d_out=self.args.d_out
-        )
+        ).to(self.args.device)
         ckpt_dir = f"{model_dir}/{CHECHPOINT_META.prefix_dir}"
         model.load_state_dict(torch.load(f"{ckpt_dir}/{CHECHPOINT_META.model}"))
         normalizer = None

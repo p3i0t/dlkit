@@ -18,7 +18,7 @@ def generate_trainarguments() -> TrainArguments:
         TrainArguments: fixture.
     """
     from pathlib import Path
-
+    import torch
     milestone = "2022-07-11"
     SAVE_DIR = Path("tests/save")
     DATA_DIR = Path("tests/data")
@@ -53,7 +53,7 @@ def generate_trainarguments() -> TrainArguments:
         model="GPT_small",
         epochs=2,
         seed=42,
-        device="cpu",
+        device="cuda" if torch.cuda.is_available() else "cpu",
         train_batch_size=1024,
         eval_batch_size=1024,
         test_batch_size=1024,
