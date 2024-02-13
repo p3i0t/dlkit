@@ -31,6 +31,7 @@ class InferenceArguments(DatasetMetaArgs):
     dataset_dir: Path = Field(...)
     universe: str = Field(...)
     model: str = Field(..., description="model name")
+    date: str | Tuple[str, str] = Field('today', description='date (str) or date range (Tuple) to infer.')
     n_latest: int = Field(3, description="number of latest models to ensemble")
     device: str = Field("cuda", description="Device to run on.")
 

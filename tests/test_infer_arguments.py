@@ -20,6 +20,7 @@ def test_initialize_infer_args():
         y_columns=["ret"],
         y_slots="1030",
         model="GPT_small",
+        date='today',
         n_latest=3,
         device="cuda",
     )

@@ -295,7 +295,6 @@ class StockTrainer:
         self.model.train()
         loss_list = []
         loader = self.get_train_dataloader()
-        logger.info("loader prepared.")
         for batch_idx, batch in enumerate(loader):
             x, y = self._process_xy(batch.x, batch.y)
             pred: torch.Tensor = self.model(x)[:, self.args.output_indices, :]
@@ -391,7 +390,7 @@ class StockTrainer:
         for epoch in range(int(self.args.epochs)):
             train_loss = self.train_epoch()
             eval_dict = self.eval_epoch(self.get_eval_dataloader(), prediction_loss_only=True)
-            logger.info(f"======> Epoch {epoch:02d}")
+            logger.info(f"======> Epoch {epoch+1:02d}")
             logger.info(f"train_loss: {train_loss:.4f}")
             logger.info("Evaluation:")
             for k, v in eval_dict.items():
