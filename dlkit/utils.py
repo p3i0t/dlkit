@@ -19,7 +19,7 @@ CheckpointMeta = collections.namedtuple(
 
 CHECHPOINT_META = CheckpointMeta(
     prefix_dir="checkpoint",
-    training_args="training_args.pt",
+    training_args="training_args.yaml",
     normalizer="normalizer.pt",
     model="model.pt",
 )

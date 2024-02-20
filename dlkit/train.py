@@ -427,7 +427,11 @@ class StockTrainer:
             self.model.state_dict(),
             f"{checkpoint_dir}/{CHECHPOINT_META.model}",
         )
-        torch.save(self.args, f"{checkpoint_dir}/{CHECHPOINT_META.training_args}")
+        import yaml
+        with open(f"{checkpoint_dir}/{CHECHPOINT_META.training_args}", "w") as f:
+            # f.write(self.args.model_dump())
+            yaml.dump(self.args.model_dump(), f)
+        # torch.save(self.args, f"{checkpoint_dir}/{CHECHPOINT_META.training_args}")
 
     def evaluate(self, eval_dataset: Optional[StockDataset] = None) -> dict[str, Any]:
         """
