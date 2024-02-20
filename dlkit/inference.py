@@ -1,6 +1,6 @@
+from __future__ import annotations
 import bisect
 import datetime
-import itertools
 import os
 from pathlib import Path
 from collections import defaultdict

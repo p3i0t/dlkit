@@ -1,3 +1,4 @@
+from __future__ import annotations
 import copy
 import itertools
 from collections import defaultdict
