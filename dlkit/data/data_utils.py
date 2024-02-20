@@ -1,5 +1,6 @@
 """This module contains the data utilities for the pit package.
 """
+from __future__ import annotations
 from dataclasses import dataclass
 from typing import Literal, NamedTuple, Sequence, Union
 

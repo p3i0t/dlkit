@@ -1,3 +1,4 @@
+from __future__ import annotations
 from typing import Union, List, TypeVar, Callable
 from typing_extensions import ParamSpec, Concatenate
 from pathlib import Path
