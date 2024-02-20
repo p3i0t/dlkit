@@ -1,14 +1,14 @@
 """This module contains the data utilities for the pit package.
 """
 from dataclasses import dataclass
-from typing import Literal, NamedTuple, Sequence, TypeAlias, Union
+from typing import Literal, NamedTuple, Sequence, Union
 
 import numpy as np
 import numpy.typing as npt
 import torch
 
 # from pydantic import BaseModel, Field, PlainValidator
-from typing_extensions import Annotated
+from typing_extensions import TypeAlias
 
 ArrayType: TypeAlias = Union[npt.NDArray[np.float32], torch.FloatTensor]
 MonitorMode: TypeAlias = Literal["min", "max"]
