@@ -1,4 +1,5 @@
-from typing import Union, List, ParamSpec, TypeVar, Callable, Concatenate
+from typing import Union, List, TypeVar, Callable, Concatenate
+from typing_extensions import ParamSpec
 from pathlib import Path
 
 import polars as pl
