@@ -65,17 +65,19 @@ class DatasetMetaArgs(BaseModel):
 
     @property
     def output_indices(self) -> list[int]:
-        import bisect
+        return [-1]
+        # import bisect
 
-        if isinstance(self.y_slots, str):
-            y_slots = [self.y_slots]
-        elif isinstance(self.y_slots, list):
-            y_slots = self.y_slots
-        else:
-            raise ValueError(f"y_slots {self.y_slots} is not a valid type.")
-        o = [bisect.bisect(self.x_slots, _y) - 1 for _y in y_slots]
-        assert all(e >= 0 for e in o)
-        return o
+        # if isinstance(self.y_slots, str):
+        #     y_slots = [self.y_slots]
+        # elif isinstance(self.y_slots, list):
+        #     y_slots = self.y_slots
+        # else:
+        #     raise ValueError(f"y_slots {self.y_slots} is not a valid type.")
+        # o = [bisect.bisect(self.x_slots, _y) - 1 for _y in y_slots]
+
+        # assert all(e >= 0 for e in o)
+        # return o
 
     @property
     def x_shape(self) -> Tuple[int, ...]:
@@ -391,16 +393,16 @@ class StockTrainer:
         for epoch in range(int(self.args.epochs)):
             train_loss = self.train_epoch()
             eval_dict = self.eval_epoch(self.get_eval_dataloader(), prediction_loss_only=True)
-            logger.info(f"======> Epoch {epoch+1:02d}")
+            logger.info(f"======> Epoch {epoch+1:03d}")
             logger.info(f"train_loss: {train_loss:.4f}")
-            logger.info("Evaluation:")
+            # logger.info("Evaluation:")
             for k, v in eval_dict.items():
                 logger.info(f"eval, {k}: {v:.4f}")
 
             if (
                 args.monitor_mode == "max" and eval_dict[args.monitor_metric] > best
             ) or (args.monitor_mode == "min" and eval_dict[args.monitor_metric] < best):
-                logger.info("======> New best")
+                logger.info("======> New Optimal")
                 best = eval_dict[args.monitor_metric]
                 best_epoch = epoch
                 best_state = copy.deepcopy(self.model.state_dict())
