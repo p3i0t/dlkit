@@ -34,6 +34,7 @@ class InferenceArguments(DatasetMetaArgs):
     # date: str | Tuple[str, str] = Field('today', description='date (str) or date range (Tuple) to infer.')
     n_latest: int = Field(3, description="number of latest models to ensemble")
     device: str = Field("cuda", description="Device to run on.")
+    tgt_column: str = Field(..., description="target column used as alpha signal.")
 
 
 class InferencePipeline:
