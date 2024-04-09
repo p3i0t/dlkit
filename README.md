@@ -2,6 +2,11 @@
 
 Simple deep learning toolkit for stock forcasting.
 
+## Build 
+
+run ``make build_cython`` to build a cython wheel.
+
+
 ## Manage dependencies
 
 Poetry is used to manage the project. Dependencies are devide in 
@@ -33,6 +38,8 @@ Run all tests:
 ```shell
 nox
 ```
+
+or ``make test``
 
 Run one specific session:
 
