@@ -64,7 +64,7 @@ to_be_compiled = [f for f in to_be_compiled if f not in private_list]
 
 setup(
     name=package_name + "_cython",
-    version='6.6.6',
+    version='2024.4.9',
     ext_modules=cythonize(to_be_compiled, compiler_directives={"language_level": "3"}),
     # cmdclass={"build_py": build_py},
 )
