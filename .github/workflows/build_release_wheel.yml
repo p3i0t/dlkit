@@ -1,0 +1,75 @@
+name: Build and Release Wheel
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build-and-release:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Python 3.10
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.10'
+    
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+
+    - name: Build wheel
+      run: python setup.py bdist_wheel
+
+    - name: Get wheel filename
+      id: wheel_file
+      run: |
+          echo "::set-output name=filename::$(basename $(ls dist/*.whl))"
+      shell: bash
+
+    # - name: Upload wheel as artifact
+    #   uses: actions/upload-artifact@v2
+    #   with:
+    #     name: wheel_file
+    #     path: dist/${{ steps.wheel_file.outputs.filename }}
+
+#   release:
+#     needs: build
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Download artifact
+#         uses: actions/download-artifact@v2
+#         with:
+#             name: wheels
+#             path: dist
+
+    - name: Create Release
+      id: create_release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: false
+        prerelease: false
+
+#       - name: Get wheel file name
+#         id: get_wheel
+#         run: |
+#               echo "::set-output name=wheel_path::$(ls dist/*.whl)"
+#         shell: bash
+
+    - name: Upload Release Asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ${{ steps.wheel_file.outputs.wheel_path }}
+        asset_name: ${{ steps.wheel_file.outputs.wheel_path }}
+        asset_content_type: application/octet-stream
