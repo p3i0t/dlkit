@@ -1,0 +1,50 @@
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+# [project]
+# name = "dlkit"
+# version = "0.6.6"
+# description = "Simple Deep Learning Toolkit for Stock Prediction"
+# requires-python = ">=3.10"
+
+[tool.poetry]
+name = "dlkit"
+version = "0.6.6"
+description = "Simple Deep Learning Toolkit for Stock Prediction"
+authors = ["p3i0t <wangxin_0716@me.com>"]
+readme = "README.md"
+
+# https://python-poetry.org/docs/managing-dependencies/
+[tool.poetry.dependencies]
+python = "^3.10"
+polars = "0.19.19"
+numpy = "^1.26.4"
+torch = "2.2.0"
+loguru = "^0.7.2"
+pydantic = "^2.6.0"
+typing-extensions = "^4.9.0"
+einops = "^0.7.0"
+
+[tool.poetry.group.test.dependencies]
+pytest = "^7.4.4"
+nox = "^2023.4.22"
+
+[tool.poetry.group.build.dependencies]
+wheel = "^0.43.0"
+
+[tool.ruff]
+exclude = [
+    "dist",
+    ".git",
+]
+
+line-length = 88
+indent-width = 4
+
+target-version = "py310"
+
+[tool.ruff.lint]
+ignore = [
+    "E501",  # avoid enforcing line-length violation.
+]
