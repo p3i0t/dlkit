@@ -182,6 +182,9 @@ class TrainArguments(DatasetMetaArgs):
         univ_list = [
             "euniv_largemid",
             "euniv_research",
+            "univ_eresearch",
+            "euniv_eresearch",
+            "univ_full",
         ]
         assert v in univ_list, f"{v} is not a valid universe"
         return v
