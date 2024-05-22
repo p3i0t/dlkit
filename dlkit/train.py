@@ -177,17 +177,17 @@ class TrainArguments(DatasetMetaArgs):
     patience: int = Field(6, description="Number of epochs to wait before early stop.")
     save_dir: Path = Field(..., description="save directory for checkpoint, logs, etc.")
 
-    @field_validator("universe")
-    def validate_universe(cls, v: str):
-        univ_list = [
-            "euniv_largemid",
-            "euniv_research",
-            "univ_eresearch",
-            "euniv_eresearch",
-            "univ_full",
-        ]
-        assert v in univ_list, f"{v} is not a valid universe"
-        return v
+    # @field_validator("universe")
+    # def validate_universe(cls, v: str):
+    #     univ_list = [
+    #         "euniv_largemid",
+    #         "euniv_research",
+    #         "univ_eresearch",
+    #         "euniv_eresearch",
+    #         "univ_full",
+    #     ]
+    #     assert v in univ_list, f"{v} is not a valid universe"
+    #     return v
 
     # @field_validator("save_dir")
     # def validate_save_dir(cls, v: Path):
