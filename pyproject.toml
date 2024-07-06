@@ -1,21 +1,20 @@
 [build-system]
-requires = ["poetry-core"]
+requires = [ "poetry-core",]
 build-backend = "poetry.core.masonry.api"
-
-# [project]
-# name = "dlkit"
-# version = "0.6.6"
-# description = "Simple Deep Learning Toolkit for Stock Prediction"
-# requires-python = ">=3.10"
 
 [tool.poetry]
 name = "dlkit"
-version = "0.6.6"
+version = "2024.07.06"
 description = "Simple Deep Learning Toolkit for Stock Prediction"
-authors = ["p3i0t <wangxin_0716@me.com>"]
+authors = [ "p3i0t <wangxin_0716@me.com>",]
 readme = "README.md"
 
-# https://python-poetry.org/docs/managing-dependencies/
+[tool.ruff]
+exclude = [ "dist", ".git",]
+line-length = 88
+indent-width = 4
+target-version = "py310"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 polars = "^0.20.31"
@@ -28,24 +27,14 @@ einops = "^0.7.0"
 wheel = "^0.43.0"
 cython = "^3.0.10"
 
+[tool.ruff.lint]
+ignore = [ "E501",]
+
 [tool.poetry.group.test.dependencies]
 pytest = "^7.4.4"
 nox = "^2023.4.22"
 
 [tool.poetry.group.build.dependencies]
 
-[tool.ruff]
-exclude = [
-    "dist",
-    ".git",
-]
-
-line-length = 88
-indent-width = 4
-
-target-version = "py310"
-
-[tool.ruff.lint]
-ignore = [
-    "E501",  # avoid enforcing line-length violation.
-]
+[tool.poetry.group.dev.dependencies]
+toml = "^0.10.2"

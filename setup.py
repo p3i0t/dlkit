@@ -17,14 +17,14 @@
 
 import os
 
+# from setuptools.command.build_py import build_py as build_py_orig
+from Cython.Build import cythonize
+
 # import fnmatch
 # NOTE: import setuptools first: https://stackoverflow.com/a/53356077/19204579
 from setuptools import find_packages, setup
 
-# from setuptools.command.build_py import build_py as build_py_orig
-from Cython.Build import cythonize
-
-# from dlkit.__init__ import __version__
+from dlkit.__init__ import __version__
 
 # ENCRYPTED = [
 #     "optimus/__init__.py",
@@ -64,7 +64,7 @@ to_be_compiled = [f for f in to_be_compiled if f not in private_list]
 
 setup(
     name=package_name + "_cython",
-    version='2024.4.9',
+    version=__version__,
     ext_modules=cythonize(to_be_compiled, compiler_directives={"language_level": "3"}),
     # cmdclass={"build_py": build_py},
 )
