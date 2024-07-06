@@ -1,5 +1,4 @@
 from dlkit.train import TrainArguments, StockTrainer # noqa F401
 
-import datetime
-__version__ = datetime.datetime.today().strftime("%Y.%m.%d")
+__version__ = "2024.07.06" 
 

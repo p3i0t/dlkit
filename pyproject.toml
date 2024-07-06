@@ -5,8 +5,8 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry]
 name = "dlkit"
 version = "2024.07.06"
-description = "Simple Deep Learning Toolkit for Stock Prediction"
-authors = [ "p3i0t <wangxin_0716@me.com>",]
+description = "Simple Deep Learning Toolkit"
+authors = [ "p3i0t <p3i0t@gmail.com>",]
 readme = "README.md"
 
 [tool.ruff]
@@ -38,3 +38,10 @@ nox = "^2023.4.22"
 
 [tool.poetry.group.dev.dependencies]
 toml = "^0.10.2"
+poetry-dynamic-versioning = "^1.4.0"
+
+[tool.poetry-dynamic-versioning]
+enable = true
+vcs = "git"
+style = "pep440"
+pattern = "(?P<base>\\d+\\.\\d+\\.\\d+)"
