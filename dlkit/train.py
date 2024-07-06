@@ -1,9 +1,10 @@
 from __future__ import annotations
+
 import copy
 import itertools
 from collections import defaultdict
 from pathlib import Path
-from typing import Any, Callable, Dict, Iterable, Optional, Tuple, Literal
+from typing import Any, Callable, Dict, Iterable, Literal, Optional, Tuple
 
 import numpy as np
 import polars as pl
@@ -20,18 +21,17 @@ from pydantic import (
 from torch.optim import AdamW
 from typing_extensions import Annotated
 
-from dlkit.models import get_model
+from dlkit.checks import check_epochs, check_milestone, check_normalizer
 from dlkit.data.data_utils import (
     EvalPrediction,
     NumpyStockDataLoader,
     StockBatch,
     StockDataset,
 )
+from dlkit.models import get_model
 from dlkit.utils import (
-    CHECHPOINT_META,
     get_time_slots,
 )
-from dlkit.checks import check_epochs, check_milestone, check_normalizer
 
 logger = logger.bind(where="trainer")
 
@@ -409,7 +409,7 @@ class StockTrainer:
                 best = eval_dict[args.monitor_metric]
                 best_epoch = epoch
                 best_state = copy.deepcopy(self.model.state_dict())
-                self._save_checkpoint(str(args.milestone_dir))
+                # self._save_checkpoint(str(args.milestone_dir))
             # logger.info(f"Saved checkpoint to {args.save_dir}.")
 
             if epoch - best_epoch >= args.patience:
@@ -419,25 +419,25 @@ class StockTrainer:
         if best_state is not None:
             self.model.load_state_dict(best_state)
 
-    def _save_checkpoint(self, save_dir: str) -> None:
-        """
-        Save the checkpoint, including model state, training arguments.
-        Args:
-            save_dir: output directory of this trainer.
-        Returns:
+    # def _save_checkpoint(self, save_dir: str) -> None:
+    #     """
+    #     Save the checkpoint, including model state, training arguments.
+    #     Args:
+    #         save_dir: output directory of this trainer.
+    #     Returns:
 
-        """
-        checkpoint_dir = f"{save_dir}/{CHECHPOINT_META.prefix_dir}"
-        Path(checkpoint_dir).mkdir(parents=True, exist_ok=True)
-        torch.save(
-            self.model.state_dict(),
-            f"{checkpoint_dir}/{CHECHPOINT_META.model}",
-        )
-        import yaml
-        with open(f"{checkpoint_dir}/{CHECHPOINT_META.training_args}", "w") as f:
-            # f.write(self.args.model_dump())
-            yaml.dump(self.args.model_dump(), f)
-        # torch.save(self.args, f"{checkpoint_dir}/{CHECHPOINT_META.training_args}")
+    #     """
+    #     checkpoint_dir = f"{save_dir}/{CHECHPOINT_META.prefix_dir}"
+    #     Path(checkpoint_dir).mkdir(parents=True, exist_ok=True)
+    #     torch.save(
+    #         self.model.state_dict(),
+    #         f"{checkpoint_dir}/{CHECHPOINT_META.model}",
+    #     )
+    #     import yaml
+    #     with open(f"{checkpoint_dir}/{CHECHPOINT_META.training_args}", "w") as f:
+    #         # f.write(self.args.model_dump())
+    #         yaml.dump(self.args.model_dump(), f)
+    #     # torch.save(self.args, f"{checkpoint_dir}/{CHECHPOINT_META.training_args}")
 
     def evaluate(self, eval_dataset: Optional[StockDataset] = None) -> dict[str, Any]:
         """
