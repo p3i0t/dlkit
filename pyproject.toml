@@ -4,7 +4,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry]
 name = "dlkit"
-version = "2024.07.09"
+version = "2024.07.18"
 description = "Simple Deep Learning Toolkit"
 authors = [ "p3i0t <p3i0t@gmail.com>",]
 readme = "README.md"

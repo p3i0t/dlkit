@@ -9,7 +9,7 @@ def check_milestone(v: str) -> str:
         raise ValueError("Incorrect data format, should be YYYY-MM-DD")
 
     today = datetime.today().strftime("%Y-%m-%d")
-    assert "2020-01-01" <= v <= today, f"{v} is not a valid milestone"
+    assert "2019-01-01" <= v <= today, f"a valid milestone should between 2019-01-01 and {today}"
     return v
 
 
